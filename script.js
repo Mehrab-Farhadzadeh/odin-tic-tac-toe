@@ -35,6 +35,22 @@ const Gameboard = (function () {
    };
 })();
 
+function User(name, email) {
+   const sayHi = function () {
+      console.log(`Hi, ${name} speaking.`);
+   };
+   return { name, email, sayHi };
+}
+
+function Player(name, shape) {
+   const { sayHi } = User(name);
+   score = 0;
+   function win() {
+      score++;
+   }
+   return { name, shape, score, win, sayHi };
+}
+
 const GameFlow = (function () {
    return {
       start: function () {
