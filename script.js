@@ -10,6 +10,12 @@ const EMPTY = " ";
 const CROSS = "X";
 const CIRCLE = "O";
 
+function doesItWin(gameboard, row, col) {
+   gameboard[row][col];
+   // Check if it wins
+   return false;
+}
+
 const Gameboard = (function () {
    const gameboard = [
       [EMPTY, EMPTY, EMPTY],
@@ -21,7 +27,7 @@ const Gameboard = (function () {
          if (gameboard[row][col] !== EMPTY) return;
          gameboard[row][col] === newState;
          Gameboard.logGameboard();
-         GameFlow.checkIfWins(row, col);
+         return doesItWin(gameboard, row, col);
       },
       logGameboard: function () {
          for (const row of gameboard) {
@@ -52,13 +58,21 @@ function Player(name, shape) {
 }
 
 const GameFlow = (function () {
+   const players = [Player("one", CIRCLE), Player("two", CROSS)];
+   function getThePlayerChoice(player) {
+      const choice = prompt(`Choice for ${player.shape}?`);
+      return choice.split(" ").map(Number);
+   }
+
    return {
       start: function () {
-         Gameboard.logGameboard();
-      },
-      checkIfWins: function (row, col) {
-         Gameboard.gameboard[row][col];
-         // Check if it wins
+         let turn = 0;
+         while (turn < 9) {
+            getThePlayerChoice(players[turn++ % 2]);
+            Gameboard.updateState();
+            Gameboard.logGameboard();
+         }
+         return "Draw";
       },
    };
 })();
