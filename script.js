@@ -5,7 +5,7 @@ console.log("%cTic Tac Toe", style);
 
 ("use strict");
 
-// Define const values
+// Define shapes
 const EMPTY = " ";
 const CROSS = "X";
 const CIRCLE = "O";
@@ -23,17 +23,15 @@ const Gameboard = (function () {
       [EMPTY, EMPTY, EMPTY],
    ];
    return {
-      updateState: function (row, col, newState) {
+      updateRoom: function (row, col, shape) {
          if (gameboard[row][col] !== EMPTY) return;
-         gameboard[row][col] === newState;
-         Gameboard.logGameboard();
-         return doesItWin(gameboard, row, col);
+         gameboard[row][col] = shape;
       },
       logGameboard: function () {
          for (const row of gameboard) {
             let rowStr = "";
-            for (const house of row) {
-               rowStr += `${house} | `;
+            for (const room of row) {
+               rowStr += `${room} | `;
             }
             console.log(rowStr);
          }
@@ -66,10 +64,10 @@ const GameFlow = (function () {
 
    return {
       start: function () {
-         let turn = 0;
-         while (turn < 9) {
-            getThePlayerChoice(players[turn++ % 2]);
-            Gameboard.updateState();
+         for (let turn = 1; turn <= 9; turn++) {
+            const [row, col] = getThePlayerChoice(players[turn % 2]);
+            Gameboard.updateRoom(row, col, players[turn % 2].shape);
+            console.log("Turn:", turn);
             Gameboard.logGameboard();
          }
          return "Draw";
