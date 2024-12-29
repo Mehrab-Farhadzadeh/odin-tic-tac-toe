@@ -66,7 +66,7 @@ const GameFlow = (function () {
    }
 
    return {
-      start: function () {
+      play: function () {
          for (let turn = 1; turn <= 9; turn++) {
             const [row, col] = getThePlayerChoice(players[turn % 2]);
             Gameboard.updateRoom(row, col, players[turn % 2].shape);
@@ -78,4 +78,4 @@ const GameFlow = (function () {
    };
 })();
 
-GameFlow.start();
+GameFlow.play();
