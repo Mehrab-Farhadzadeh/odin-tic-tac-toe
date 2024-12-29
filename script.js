@@ -36,6 +36,9 @@ const Gameboard = (function () {
             console.log(rowStr);
          }
       },
+      getGameboard: function () {
+         return gameboard;
+      },
    };
 })();
 
