@@ -11,11 +11,15 @@ const CROSS = "X";
 const CIRCLE = "O";
 
 const Gameboard = (function () {
-   const gameboard = [
-      [EMPTY, EMPTY, EMPTY],
-      [EMPTY, EMPTY, EMPTY],
-      [EMPTY, EMPTY, EMPTY],
-   ];
+   const rows = 3;
+   const cols = 3;
+   const gameboard = [];
+   for (let i = 0; i < rows; i++) {
+      gameboard[i] = [];
+      for (let j = 0; j < cols; j++) {
+         gameboard[i].push(EMPTY);
+      }
+   }
    return {
       updateRoom: function (row, col, shape) {
          if (gameboard[row][col] !== EMPTY) return;
@@ -103,10 +107,12 @@ const GameFlow = (function () {
             Gameboard.updateRoom(row, col, players[turn % 2].shape);
             console.log("Turn:", turn);
             Gameboard.logGameboard();
+            if (isPlayerWinner.check(Gameboard.getGameboard(), row, col))
+               return players[turn];
          }
          return "Draw";
       },
    };
 })();
 
-GameFlow.play();
+// GameFlow.play();
