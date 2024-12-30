@@ -55,56 +55,58 @@ function Player(name, shape) {
    return { name, shape, score, win, sayHi };
 }
 
-const isPlayerWinner = (function () {
-   function isRowWinner(gameboard, row) {
-      for (let col = 1; col < gameboard[row].length; col++) {
-         if (gameboard[row][col - 1] !== gameboard[row][col]) return false;
-      }
-      return true;
-   }
-   function isColWinner(gameboard, col) {
-      for (let row = 1; row < gameboard.length; row++) {
-         if (gameboard[row - 1][col] !== gameboard[row][col]) return false;
-      }
-      return true;
-   }
-   function isDiagonalWinner(gameboard, row, col) {
-      // Check if player's play is on a diagonal
-      if ((col + row) % 2 !== 0) return false;
-      const isPrimaryDiaWinner =
-         new Set([gameboard[0][0], gameboard[1][1], gameboard[2][2]]).size ===
-         1;
-      const isSecondaryDiaWinner =
-         new Set([gameboard[0][2], gameboard[1][1], gameboard[2][0]]).size ===
-         1;
-
-      return isPrimaryDiaWinner || isSecondaryDiaWinner;
-   }
-
-   function check(gameboard, row, col) {
-      return (
-         isRowWinner(gameboard, row) ||
-         isColWinner(gameboard, col) ||
-         isDiagonalWinner(gameboard, row, col)
-      );
-   }
-
-   return { check };
-})();
-
-const GameFlow = (function () {
-   const players = [Player("one", CIRCLE), Player("two", CROSS)];
+const GameFlow = (function (
+   playerOneName = "Player One",
+   playerTwoName = "Player Two"
+) {
+   const players = [
+      Player(playerOneName, CIRCLE),
+      Player(playerTwoName, CROSS),
+   ];
    function getThePlayerChoice(player) {
       const choice = prompt(`Choice for ${player.shape}?`);
       return choice.split(" ").map(Number);
    }
+
+   function isPlayerWinner(gameboard, row, col) {
+      function isRowWinner(gameboard, row) {
+         for (let col = 1; col < gameboard[row].length; col++) {
+            if (gameboard[row][col - 1] !== gameboard[row][col]) return false;
+         }
+         return true;
+      }
+      function isColWinner(gameboard, col) {
+         for (let row = 1; row < gameboard.length; row++) {
+            if (gameboard[row - 1][col] !== gameboard[row][col]) return false;
+         }
+         return true;
+      }
+      function isADiagonalWinner(gameboard, row, col) {
+         // Check if player's move is on a diagonal
+         if ((col + row) % 2 !== 0) return false;
+         const isPrimaryDiaWinner =
+            new Set([gameboard[0][0], gameboard[1][1], gameboard[2][2]])
+               .size === 1; // Check if they are the same
+         const isSecondaryDiaWinner =
+            new Set([gameboard[0][2], gameboard[1][1], gameboard[2][0]])
+               .size === 1;
+         return isPrimaryDiaWinner || isSecondaryDiaWinner;
+      }
+
+      return (
+         isRowWinner(gameboard, row) ||
+         isColWinner(gameboard, col) ||
+         isADiagonalWinner(gameboard, row, col)
+      );
+   }
+
    function play() {
       for (let turn = 1; turn <= 9; turn++) {
          const [row, col] = getThePlayerChoice(players[turn % 2]);
          Gameboard.updateRoom(row, col, players[turn % 2].shape);
          console.log("Turn:", turn);
          Gameboard.logGameboard();
-         if (isPlayerWinner.check(Gameboard.getGameboard(), row, col))
+         if (isPlayerWinner(Gameboard.getGameboard(), row, col))
             return players[turn];
       }
       return "Draw";
