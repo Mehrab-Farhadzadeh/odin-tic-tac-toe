@@ -20,24 +20,23 @@ const Gameboard = (function () {
          gameboard[i].push(EMPTY);
       }
    }
-   return {
-      updateRoom: function (row, col, shape) {
-         if (gameboard[row][col] !== EMPTY) return;
-         gameboard[row][col] = shape;
-      },
-      logGameboard: function () {
-         for (const row of gameboard) {
-            let rowStr = "";
-            for (const room of row) {
-               rowStr += `${room} | `;
-            }
-            console.log(rowStr);
+   function updateRoom(row, col, shape) {
+      if (gameboard[row][col] !== EMPTY) return;
+      gameboard[row][col] = shape;
+   }
+   function logGameboard() {
+      for (const row of gameboard) {
+         let rowStr = "";
+         for (const room of row) {
+            rowStr += `${room} | `;
          }
-      },
-      getGameboard: function () {
-         return gameboard;
-      },
-   };
+         console.log(rowStr);
+      }
+   }
+   function getGameboard() {
+      return gameboard;
+   }
+   return { updateRoom, logGameboard, getGameboard };
 })();
 
 function User(name, email) {
@@ -99,20 +98,18 @@ const GameFlow = (function () {
       const choice = prompt(`Choice for ${player.shape}?`);
       return choice.split(" ").map(Number);
    }
-
-   return {
-      play: function () {
-         for (let turn = 1; turn <= 9; turn++) {
-            const [row, col] = getThePlayerChoice(players[turn % 2]);
-            Gameboard.updateRoom(row, col, players[turn % 2].shape);
-            console.log("Turn:", turn);
-            Gameboard.logGameboard();
-            if (isPlayerWinner.check(Gameboard.getGameboard(), row, col))
-               return players[turn];
-         }
-         return "Draw";
-      },
-   };
+   function play() {
+      for (let turn = 1; turn <= 9; turn++) {
+         const [row, col] = getThePlayerChoice(players[turn % 2]);
+         Gameboard.updateRoom(row, col, players[turn % 2].shape);
+         console.log("Turn:", turn);
+         Gameboard.logGameboard();
+         if (isPlayerWinner.check(Gameboard.getGameboard(), row, col))
+            return players[turn];
+      }
+      return "Draw";
+   }
+   return { play };
 })();
 
 // GameFlow.play();
