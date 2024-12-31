@@ -63,7 +63,7 @@ const GameFlow = (function (
       Player(playerOneName, CIRCLE),
       Player(playerTwoName, CROSS),
    ];
-   function getThePlayerChoice(player) {
+   function getPlayerChosenRoom(player) {
       const choice = prompt(`Choice for ${player.shape}?`);
       return choice.split(" ").map(Number);
    }
@@ -100,18 +100,39 @@ const GameFlow = (function (
       );
    }
 
-   function play() {
-      for (let turn = 1; turn <= 9; turn++) {
-         const [row, col] = getThePlayerChoice(players[turn % 2]);
-         Gameboard.updateRoom(row, col, players[turn % 2].shape);
-         console.log("Turn:", turn);
-         Gameboard.logGameboard();
+   function playTurn(row, col, player) {
+      Gameboard.updateRoom(row, col, player.shape);
+   }
+
+   function printTurn(turn) {
+      console.log("Turn:", turn + 1);
+      Gameboard.logGameboard();
+   }
+
+   function getActivePlayer(players, turn) {
+      return players[turn % 2];
+   }
+
+   function playRound() {
+      // play round
+      for (let turn = 0; turn < 9; turn++) {
+         const activePlayer = getActivePlayer(players, turn);
+         const [row, col] = getPlayerChosenRoom(activePlayer);
+         playTurn(row, col, activePlayer);
+         printTurn(turn);
          if (isPlayerWinner(Gameboard.getGameboard(), row, col))
-            return players[turn];
+            return activePlayer;
       }
       return "Draw";
    }
-   return { play };
+
+   function playGame(rounds) {
+      for (let round = 0; round < rounds; round++) {
+         const winningPlayer = playRound();
+         if (winningPlayer !== "Draw") winningPlayer.win();
+      }
+   }
+   return { playGame };
 })();
 
-// GameFlow.play();
+GameFlow.playGame(1);
