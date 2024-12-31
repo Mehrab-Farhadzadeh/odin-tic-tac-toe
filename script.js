@@ -15,19 +15,28 @@ function Room(row, col) {
 }
 
 const Gameboard = (function () {
-   const rows = 3;
-   const cols = 3;
    const gameboard = [];
-   for (let i = 0; i < rows; i++) {
-      gameboard[i] = [];
-      for (let j = 0; j < cols; j++) {
-         gameboard[i].push(EMPTY);
+
+   function setGameboard() {
+      const rows = 3;
+      const cols = 3;
+      for (let i = 0; i < rows; i++) {
+         gameboard[i] = [];
+         for (let j = 0; j < cols; j++) {
+            gameboard[i].push(EMPTY);
+         }
       }
    }
+
+   function getGameboard() {
+      return gameboard;
+   }
+
    function updateRoom(room, shape) {
       if (gameboard[room.row][room.col] !== EMPTY) return;
       gameboard[room.row][room.col] = shape;
    }
+   
    function logGameboard() {
       for (const row of gameboard) {
          let rowStr = "";
@@ -37,10 +46,7 @@ const Gameboard = (function () {
          console.log(rowStr);
       }
    }
-   function getGameboard() {
-      return gameboard;
-   }
-   return { updateRoom, logGameboard, getGameboard };
+   return { updateRoom, logGameboard, getGameboard, setGameboard };
 })();
 
 function User(name, email) {
@@ -68,9 +74,15 @@ const GameFlow = (function (
       Player(playerTwoName, CROSS),
    ];
    function getPlayerChosenRoom(player) {
-      const [row, col] = prompt(`Choice for ${player.shape}?`)
-         .split(" ")
-         .map(Number);
+      const board = Gameboard.getGameboard();
+      let row = 0,
+         col = 0;
+      do {
+         row = Math.floor(Math.random() * 3);
+         col = Math.floor(Math.random() * 3);
+      } while (board[row][col] !== EMPTY);
+      // [row, col] = prompt(`Choice for ${player.shape}?`).split(" ").map(Number);
+
       return Room(row, col);
    }
 
@@ -88,14 +100,16 @@ const GameFlow = (function (
          return true;
       }
       function isADiagonalWinner(gameboard, row, col) {
-         // Check if player's move is on a diagonal
-         if ((col + row) % 2 !== 0) return false;
+         if (gameboard[1][1] === EMPTY) return false;
+         // console.log(gameboard);
          const isPrimaryDiaWinner =
             new Set([gameboard[0][0], gameboard[1][1], gameboard[2][2]])
                .size === 1; // Check if they are the same
          const isSecondaryDiaWinner =
             new Set([gameboard[0][2], gameboard[1][1], gameboard[2][0]])
                .size === 1;
+
+         // console.log(isPrimaryDiaWinner, isSecondaryDiaWinner);
          return isPrimaryDiaWinner || isSecondaryDiaWinner;
       }
 
@@ -125,6 +139,7 @@ const GameFlow = (function (
          const activePlayer = getActivePlayer(players, turn);
          const room = getPlayerChosenRoom(activePlayer);
          playTurn(room, activePlayer);
+         // console.log(room);
          printTurn(turn);
          if (isPlayerWinner(Gameboard.getGameboard(), room.row, room.col))
             return activePlayer;
@@ -134,8 +149,13 @@ const GameFlow = (function (
 
    function playGame(rounds) {
       for (let round = 0; round < rounds; round++) {
+         console.group("Round:", round + 1);
+         Gameboard.setGameboard();
          const winningPlayer = playRound();
          if (winningPlayer !== "Draw") winningPlayer.win();
+         console.log("%cWinner:", "color: lightgreen", winningPlayer);
+         console.groupEnd();
+         // reset the board
       }
    }
    return { playGame };
