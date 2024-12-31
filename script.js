@@ -36,7 +36,7 @@ const Gameboard = (function () {
       if (gameboard[room.row][room.col] !== EMPTY) return;
       gameboard[room.row][room.col] = shape;
    }
-   
+
    function logGameboard() {
       for (const row of gameboard) {
          let rowStr = "";
@@ -58,9 +58,10 @@ function User(name, email) {
 
 function Player(name, shape) {
    const { sayHi } = User(name);
-   score = 0;
+   let score = 0;
    function win() {
-      score++;
+      sayHi();
+      this.score++;
    }
    return { name, shape, score, win, sayHi };
 }
@@ -140,25 +141,26 @@ const GameFlow = (function (
          const room = getPlayerChosenRoom(activePlayer);
          playTurn(room, activePlayer);
          // console.log(room);
-         printTurn(turn);
-         if (isPlayerWinner(Gameboard.getGameboard(), room.row, room.col))
-            return activePlayer;
+         // printTurn(turn);
+         if (isPlayerWinner(Gameboard.getGameboard(), room.row, room.col)) {
+            activePlayer.win();
+            return;
+         }
       }
-      return "Draw";
+      console.log("%cDraw", "color: gray");
    }
 
    function playGame(rounds) {
       for (let round = 0; round < rounds; round++) {
          console.group("Round:", round + 1);
          Gameboard.setGameboard();
-         const winningPlayer = playRound();
-         if (winningPlayer !== "Draw") winningPlayer.win();
-         console.log("%cWinner:", "color: lightgreen", winningPlayer);
+         playRound();
          console.groupEnd();
-         // reset the board
       }
+      // Display result
+      console.log(players[0], players[1]);
    }
    return { playGame };
 })();
 
-GameFlow.playGame(1);
+GameFlow.playGame(5);
