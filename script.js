@@ -10,44 +10,44 @@ const EMPTY = " ";
 const CROSS = "X";
 const CIRCLE = "O";
 
-function Room(row, col) {
+function Cell(row, col) {
    return { row, col };
 }
 
-const Gameboard = (function () {
-   const gameboard = [];
+function Gameboard() {
+   const board = [];
 
-   function setGameboard() {
+   function setBoard() {
       const rows = 3;
       const cols = 3;
       for (let i = 0; i < rows; i++) {
-         gameboard[i] = [];
+         board[i] = [];
          for (let j = 0; j < cols; j++) {
-            gameboard[i].push(EMPTY);
+            board[i].push(EMPTY);
          }
       }
    }
 
-   function getGameboard() {
-      return gameboard;
+   function getBoard() {
+      return board;
    }
 
-   function updateRoom(room, shape) {
-      if (gameboard[room.row][room.col] !== EMPTY) return;
-      gameboard[room.row][room.col] = shape;
+   function updateCell(cell, shape) {
+      if (board[cell.row][cell.col] !== EMPTY) return;
+      board[cell.row][cell.col] = shape;
    }
 
-   function logGameboard() {
-      for (const row of gameboard) {
+   function logBoard() {
+      for (const row of board) {
          let rowStr = "";
-         for (const room of row) {
-            rowStr += `${room} | `;
+         for (const cell of row) {
+            rowStr += `${cell} | `;
          }
          console.log(rowStr);
       }
    }
-   return { updateRoom, logGameboard, getGameboard, setGameboard };
-})();
+   return { updateCell, logBoard, getBoard, setBoard };
+}
 
 function User(name, email) {
    const sayHi = function () {
@@ -66,16 +66,14 @@ function Player(name, shape) {
    return { name, shape, score, win, sayHi };
 }
 
-const GameFlow = (function (
-   playerOneName = "Player One",
-   playerTwoName = "Player Two"
-) {
+function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
+   const gameboard = Gameboard();
    const players = [
       Player(playerOneName, CIRCLE),
       Player(playerTwoName, CROSS),
    ];
-   function getPlayerChosenRoom(player) {
-      const board = Gameboard.getGameboard();
+   function getPlayerChosenCell(player) {
+      const board = gameboard.getBoard();
       let row = 0,
          col = 0;
       do {
@@ -84,50 +82,48 @@ const GameFlow = (function (
       } while (board[row][col] !== EMPTY);
       // [row, col] = prompt(`Choice for ${player.shape}?`).split(" ").map(Number);
 
-      return Room(row, col);
+      return Cell(row, col);
    }
 
-   function isPlayerWinner(gameboard, row, col) {
-      function isRowWinner(gameboard, row) {
-         for (let col = 1; col < gameboard[row].length; col++) {
-            if (gameboard[row][col - 1] !== gameboard[row][col]) return false;
+   function isPlayerWinner(board, row, col) {
+      function isRowWinner(board, row) {
+         for (let col = 1; col < board[row].length; col++) {
+            if (board[row][col - 1] !== board[row][col]) return false;
          }
          return true;
       }
-      function isColWinner(gameboard, col) {
-         for (let row = 1; row < gameboard.length; row++) {
-            if (gameboard[row - 1][col] !== gameboard[row][col]) return false;
+      function isColWinner(board, col) {
+         for (let row = 1; row < board.length; row++) {
+            if (board[row - 1][col] !== board[row][col]) return false;
          }
          return true;
       }
-      function isADiagonalWinner(gameboard, row, col) {
-         if (gameboard[1][1] === EMPTY) return false;
-         // console.log(gameboard);
+      function isADiagonalWinner(board, row, col) {
+         if (board[1][1] === EMPTY) return false;
+         // console.log(board);
          const isPrimaryDiaWinner =
-            new Set([gameboard[0][0], gameboard[1][1], gameboard[2][2]])
-               .size === 1; // Check if they are the same
+            new Set([board[0][0], board[1][1], board[2][2]]).size === 1; // Check if they are the same
          const isSecondaryDiaWinner =
-            new Set([gameboard[0][2], gameboard[1][1], gameboard[2][0]])
-               .size === 1;
+            new Set([board[0][2], board[1][1], board[2][0]]).size === 1;
 
          // console.log(isPrimaryDiaWinner, isSecondaryDiaWinner);
          return isPrimaryDiaWinner || isSecondaryDiaWinner;
       }
 
       return (
-         isRowWinner(gameboard, row) ||
-         isColWinner(gameboard, col) ||
-         isADiagonalWinner(gameboard, row, col)
+         isRowWinner(board, row) ||
+         isColWinner(board, col) ||
+         isADiagonalWinner(board, row, col)
       );
    }
 
-   function playTurn(room, player) {
-      Gameboard.updateRoom(room, player.shape);
+   function playTurn(cell, player) {
+      gameboard.updateCell(cell, player.shape);
    }
 
    function printTurn(turn) {
       console.log("Turn:", turn + 1);
-      Gameboard.logGameboard();
+      gameboard.logBoard();
    }
 
    function getActivePlayer(players, turn) {
@@ -135,14 +131,13 @@ const GameFlow = (function (
    }
 
    function playRound() {
-      // play round
       for (let turn = 0; turn < 9; turn++) {
          const activePlayer = getActivePlayer(players, turn);
-         const room = getPlayerChosenRoom(activePlayer);
-         playTurn(room, activePlayer);
-         // console.log(room);
+         const cell = getPlayerChosenCell(activePlayer);
+         playTurn(cell, activePlayer);
+         // console.log(cell);
          // printTurn(turn);
-         if (isPlayerWinner(Gameboard.getGameboard(), room.row, room.col)) {
+         if (isPlayerWinner(gameboard.getBoard(), cell.row, cell.col)) {
             activePlayer.win();
             return;
          }
@@ -150,17 +145,18 @@ const GameFlow = (function (
       console.log("%cDraw", "color: gray");
    }
 
-   function playGame(rounds) {
+   function play(rounds) {
       for (let round = 0; round < rounds; round++) {
          console.group("Round:", round + 1);
-         Gameboard.setGameboard();
+         gameboard.setBoard();
          playRound();
          console.groupEnd();
       }
       // Display result
       console.log(players[0], players[1]);
    }
-   return { playGame };
-})();
+   return { play };
+}
 
-GameFlow.playGame(5);
+const game = GameFlow();
+game.play(5);
