@@ -72,6 +72,8 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
       Player(playerOneName, CIRCLE),
       Player(playerTwoName, CROSS),
    ];
+
+   // I keep this function commented here for the purpose of testing
    function getPlayerChosenCell(player) {
       const board = gameboard.getBoard();
       let row = 0,
@@ -80,7 +82,6 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
          row = Math.floor(Math.random() * 3);
          col = Math.floor(Math.random() * 3);
       } while (board[row][col] !== EMPTY);
-      // [row, col] = prompt(`Choice for ${player.shape}?`).split(" ").map(Number);
 
       return Cell(row, col);
    }
@@ -126,13 +127,13 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
       gameboard.logBoard();
    }
 
-   function getActivePlayer(players, turn) {
+   function getActivePlayer(turn) {
       return players[turn % 2];
    }
 
    function playRound() {
       for (let turn = 0; turn < 9; turn++) {
-         const activePlayer = getActivePlayer(players, turn);
+         const activePlayer = getActivePlayer(turn);
          const cell = getPlayerChosenCell(activePlayer);
          playTurn(cell, activePlayer);
          // console.log(cell);
@@ -155,8 +156,42 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
       // Display result
       console.log(players[0], players[1]);
    }
-   return { play };
+   return { play, getBoard: gameboard.getBoard, getActivePlayer };
 }
 
-const game = GameFlow();
-game.play(5);
+function displayLogic() {
+   const game = GameFlow();
+   game.play(1);
+
+   function displayCol(rowEl, col, colIdx) {
+      const colEl = document.createElement("div");
+      colEl.className = `cell ${col}`;
+      colEl.dataset.index = colIdx;
+      colEl.textContent = col;
+      rowEl.append(colEl);
+   }
+
+   function displayRow(boardEl, row, rowIdx) {
+      const rowEl = document.createElement("div");
+      rowEl.className = `row ${rowIdx}`;
+      rowEl.dataset.index = rowIdx;
+      row.forEach((col, index) => {
+         displayCol(rowEl, col, index);
+         boardEl.append(rowEl);
+      });
+   }
+
+   function displayBoard(gameboard) {
+      const boardEl = document.createElement("div");
+      let turn = Math.floor(Math.random() * 2);
+      boardEl.className = `board ${game.getActivePlayer(turn).shape}Turn`;
+      gameboard.forEach((row, index) => {
+         displayRow(boardEl, row, index);
+      });
+      document.body.append(boardEl);
+   }
+
+   displayBoard(game.getBoard());
+}
+
+displayLogic();
