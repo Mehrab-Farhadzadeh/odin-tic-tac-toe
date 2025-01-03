@@ -11,6 +11,36 @@
 
 <body>
 
+   <div class="o-score">
+      <div class="name">Player One</div>
+      <div class="shape">O</div>
+      <div class="score">0</div>
+   </div>
+   <div class="board">
+   </div>
+   <div class="x-score">
+      <div class="name">Player Two</div>
+      <div class="shape">X</div>
+      <div class="score">0</div>
+   </div>
+   <button class="reset">Reset</button>
+
+   <dialog id="addNamesDialog">
+      <form id="addNamesForm">
+         <p>
+            <label for="p1-name">Player One Name:</label>
+            <input type="text" name="p1-name" id="p1Name" required>
+         </p>
+         <p>
+            <label for="p2-name">Player Two Name:</label>
+            <input type="text" name="p2-name" id="p2Name" required>
+         </p>
+         <p>
+            <button id="submit-names" value="default">Start</button>
+         </p>
+      </form>
+   </dialog>
+
 </body>
 
 </html>

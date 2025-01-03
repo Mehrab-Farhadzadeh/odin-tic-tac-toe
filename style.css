@@ -6,6 +6,8 @@ body {
    width: 100vw;
    height: 100vh;
    margin: 0;
+   display: grid;
+   grid-template-columns: repeat(3, 1fr);
 }
 
 .board {
@@ -44,14 +46,50 @@ body {
 .cell.X:hover,
 .cell.O:hover {
    cursor: not-allowed;
+   background-color: transparent;
 }
 
 .cell:active {
-   box-shadow: inset 0px 0px 20px black;
+   box-shadow: inset 0px 0px 12px black;
 }
 
 .gameOver .cell:active,
 .cell.X:active,
 .cell.O:active {
    box-shadow: none;
+}
+
+.o-score,
+.x-score {
+   font-size: 2rem;
+   align-self: center;
+   text-align: center;
+   width: 100%;
+
+   .shape {
+      font-family: sans-serif;
+   }
+
+   .score {
+      font-family: monospace;
+   }
+}
+
+button.reset {
+   margin-top: 2rem;
+   padding: 4px 12px;
+   font-size: 1rem;
+   cursor: pointer;
+   grid-column: 1/4;
+}
+
+#addNamesDialog {
+   background-color: #1f1f1f;
+   color: #eee;
+   
+   label {
+      font-size: 1.1rem;
+      display: inline-block;
+      width: 140px;
+   }
 }

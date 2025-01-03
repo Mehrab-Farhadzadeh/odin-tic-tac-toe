@@ -79,6 +79,11 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
    let round = 0;
    let isGameFinished_ = false;
 
+   function setNames(name1, name2) {
+      players[0].name = name1;
+      players[1].name = name2;
+   }
+
    function isPlayerWinner(board, row, col) {
       function isRowWinner(board, row) {
          for (let col = 1; col < board[row].length; col++) {
@@ -139,7 +144,7 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
 
    function playTurn(cell) {
       if (gameboard.getBoard()[cell.row][cell.col] !== EMPTY) return;
-      
+
       const activePlayer = getActivePlayer();
       gameboard.updateCell(cell, activePlayer.shape);
 
@@ -154,19 +159,23 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
       }
    }
 
+   function getPlayers() {
+      return players;
+   }
+
    return {
       playTurn,
       getBoard: gameboard.getBoard,
       getActivePlayer,
       isRoundFinished,
       isGameFinished,
+      getPlayers,
+      setNames,
       // getRoundResult,
    };
 }
 
 const displayLogic = (function () {
-   const boardEl = document.createElement("div");
-
    function displayCol(rowEl, col, colIdx) {
       const colEl = document.createElement("div");
       colEl.className = `cell ${col}`;
@@ -186,24 +195,60 @@ const displayLogic = (function () {
    }
 
    function addBoardToDOM(game) {
+      const boardEl = document.querySelector(".board");
       boardEl.innerHTML = "";
-      boardEl.className = `board ${game.getActivePlayer().shape}Turn`;
+      boardEl.className += ` ${game.getActivePlayer().shape}Turn`;
       game.getBoard().forEach((row, index) => {
          displayRow(boardEl, row, index);
       });
-      document.body.append(boardEl);
+   }
+
+   function updateScoreBoard(game) {
+      const circleScoreEl = document.querySelector(".o-score .score");
+      const crossScoreEl = document.querySelector(".x-score .score");
+      circleScoreEl.textContent = game.getPlayers()[0].score;
+      crossScoreEl.textContent = game.getPlayers()[1].score;
    }
 
    function update(game) {
+      initial(game);
       addBoardToDOM(game);
+      updateScoreBoard(game);
+   }
+
+   function initial(game) {
+      const circleNameEl = document.querySelector(".o-score .name");
+      const crossNameEl = document.querySelector(".x-score .name");
+      circleNameEl.textContent = game.getPlayers()[0].name;
+      crossNameEl.textContent = game.getPlayers()[1].name;
    }
 
    return { update };
 })();
 
+function getNames(game) {
+   // Show dialog
+   const addNamesDialog = document.querySelector("#addNamesDialog");
+   addNamesDialog.showModal();
+
+   // Retrieve names from form
+   const addNamesForm = document.querySelector("#addNamesForm");
+   const p1Name = document.querySelector("#p1Name");
+   const p2Name = document.querySelector("#p2Name");
+
+   addNamesForm.addEventListener("submit", (event) => {
+      if (event.submitter.getAttribute("value") === "close") return;
+      event.preventDefault();
+      game.setNames(p1Name.value, p2Name.value);
+      addNamesDialog.close();
+      displayLogic.update(game);
+   });
+}
+
 function handleEventAndPlayGame() {
    // initiate game
    const game = GameFlow();
+   getNames(game);
    displayLogic.update(game);
 
    // Add handler
