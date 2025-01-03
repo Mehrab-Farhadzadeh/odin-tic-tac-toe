@@ -1,0 +1,57 @@
+body {
+   background-color: black;
+   color: white;
+   justify-items: center;
+   align-content: center;
+   width: 100vw;
+   height: 100vh;
+   margin: 0;
+}
+
+.board {
+   background-color: #333;
+   width: 300px;
+}
+
+.row {
+   display: flex;
+}
+
+.cell {
+   border: 1px solid;
+   height: 100px;
+   width: 100px;
+   font-size: 2rem;
+   font-family: sans-serif;
+   text-align: center;
+   justify-items: center;
+   align-content: center;
+}
+
+.cell:hover {
+   background-color: #ffffff16;
+}
+
+.XTurn .cell:hover {
+   cursor: url("assets/icons/x-symbol-svgrepo-com.svg"), pointer;
+}
+
+.OTurn .cell:hover {
+   cursor: url("assets/icons/circle-empty-geometry-container-round-svgrepo-com.svg"), pointer;
+}
+
+.gameOver .cell:hover,
+.cell.X:hover,
+.cell.O:hover {
+   cursor: not-allowed;
+}
+
+.cell:active {
+   box-shadow: inset 0px 0px 20px black;
+}
+
+.gameOver .cell:active,
+.cell.X:active,
+.cell.O:active {
+   box-shadow: none;
+}
