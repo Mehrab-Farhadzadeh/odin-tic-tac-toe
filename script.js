@@ -68,23 +68,16 @@ function Player(name, shape) {
 
 function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
    const gameboard = Gameboard();
+   gameboard.setBoard();
    const players = [
       Player(playerOneName, CIRCLE),
       Player(playerTwoName, CROSS),
    ];
 
-   // I keep this function commented here for the purpose of testing
-   function getPlayerChosenCell(player) {
-      const board = gameboard.getBoard();
-      let row = 0,
-         col = 0;
-      do {
-         row = Math.floor(Math.random() * 3);
-         col = Math.floor(Math.random() * 3);
-      } while (board[row][col] !== EMPTY);
-
-      return Cell(row, col);
-   }
+   let turn = 0;
+   let isRoundFinished_ = false;
+   let round = 0;
+   let isGameFinished_ = false;
 
    function isPlayerWinner(board, row, col) {
       function isRowWinner(board, row) {
@@ -118,50 +111,61 @@ function GameFlow(playerOneName = "Player One", playerTwoName = "Player Two") {
       );
    }
 
-   function playTurn(cell, player) {
-      gameboard.updateCell(cell, player.shape);
+   function resetRound(activePlayer) {
+      if (activePlayer) activePlayer.win();
+      turn = 0;
+      round++;
+      gameboard.setBoard();
+      isRoundFinished_ = true;
    }
 
-   function printTurn(turn) {
-      console.log("Turn:", turn + 1);
-      gameboard.logBoard();
+   function resetGame() {
+      resetRound();
+      isGameFinished_ = true;
+      round = 0;
    }
 
-   function getActivePlayer(turn) {
+   function getActivePlayer() {
       return players[turn % 2];
    }
 
-   function playRound() {
-      for (let turn = 0; turn < 9; turn++) {
-         const activePlayer = getActivePlayer(turn);
-         const cell = getPlayerChosenCell(activePlayer);
-         playTurn(cell, activePlayer);
-         // console.log(cell);
-         // printTurn(turn);
-         if (isPlayerWinner(gameboard.getBoard(), cell.row, cell.col)) {
-            activePlayer.win();
-            return;
-         }
-      }
-      console.log("%cDraw", "color: gray");
+   function isGameFinished() {
+      return isGameFinished_;
    }
 
-   function play(rounds) {
-      for (let round = 0; round < rounds; round++) {
-         console.group("Round:", round + 1);
-         gameboard.setBoard();
-         playRound();
-         console.groupEnd();
-      }
-      // Display result
-      console.log(players[0], players[1]);
+   function isRoundFinished() {
+      return isRoundFinished_;
    }
-   return { play, getBoard: gameboard.getBoard, getActivePlayer };
+
+   function playTurn(cell) {
+      if (gameboard.getBoard()[cell.row][cell.col] !== EMPTY) return;
+      
+      const activePlayer = getActivePlayer();
+      gameboard.updateCell(cell, activePlayer.shape);
+
+      if (isPlayerWinner(gameboard.getBoard(), cell.row, cell.col)) {
+         resetRound(activePlayer);
+         return;
+      }
+      turn++;
+
+      if (turn === 9) {
+         resetRound();
+      }
+   }
+
+   return {
+      playTurn,
+      getBoard: gameboard.getBoard,
+      getActivePlayer,
+      isRoundFinished,
+      isGameFinished,
+      // getRoundResult,
+   };
 }
 
-function displayLogic() {
-   const game = GameFlow();
-   game.play(1);
+const displayLogic = (function () {
+   const boardEl = document.createElement("div");
 
    function displayCol(rowEl, col, colIdx) {
       const colEl = document.createElement("div");
@@ -181,17 +185,40 @@ function displayLogic() {
       });
    }
 
-   function displayBoard(gameboard) {
-      const boardEl = document.createElement("div");
-      let turn = Math.floor(Math.random() * 2);
-      boardEl.className = `board ${game.getActivePlayer(turn).shape}Turn`;
-      gameboard.forEach((row, index) => {
+   function addBoardToDOM(game) {
+      boardEl.innerHTML = "";
+      boardEl.className = `board ${game.getActivePlayer().shape}Turn`;
+      game.getBoard().forEach((row, index) => {
          displayRow(boardEl, row, index);
       });
       document.body.append(boardEl);
    }
 
-   displayBoard(game.getBoard());
+   function update(game) {
+      addBoardToDOM(game);
+   }
+
+   return { update };
+})();
+
+function handleEventAndPlayGame() {
+   // initiate game
+   const game = GameFlow();
+   displayLogic.update(game);
+
+   // Add handler
+   function extractCell(event) {
+      const row = event.target.parentNode.dataset.index;
+      const col = event.target.dataset.index;
+      return Cell(row, col);
+   }
+   const boardEl = document.querySelector(".board");
+   function handleClick(e) {
+      const cell = extractCell(e);
+      game.playTurn(cell, game.getActivePlayer());
+      displayLogic.update(game);
+   }
+   boardEl.addEventListener("click", handleClick);
 }
 
-displayLogic();
+handleEventAndPlayGame();
